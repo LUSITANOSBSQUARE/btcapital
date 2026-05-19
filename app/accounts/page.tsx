@@ -1,13 +1,17 @@
-import { supabase } from "@/lib/supabase";
+import { supabaseServer } from "@/lib/supabase/server";
+import DeleteAccountButton from "./_components/DeleteAccountButton";
 
 export default async function AccountsPage() {
+  const supabase = supabaseServer();
+
+  // 🔥 SELECT CORRIGIDO — garante que o ID vem SEMPRE
   const { data: accounts, error } = await supabase
     .from("accounts")
-    .select("*")
+    .select("id, name, category, provider, account_type, currency_base, created_at")
     .order("created_at", { ascending: false });
 
   if (error) {
-    console.error(error);
+    console.error("SUPABASE ERROR:", error);
     return (
       <div style={{ color: "red", padding: "40px" }}>
         Failed to load accounts.
@@ -36,7 +40,6 @@ export default async function AccountsPage() {
         Accounts
       </h1>
 
-      {/* 🔥 BOTÃO ADD ACCOUNT PREMIUM */}
       <a
         href="/accounts/new"
         style={{
@@ -49,51 +52,49 @@ export default async function AccountsPage() {
           fontWeight: "600",
           fontSize: "16px",
           textDecoration: "none",
-          transition: "0.2s",
         }}
       >
         + Add Account
       </a>
 
       <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
-        {accounts?.map((acc) => (
-          <div
-            key={acc.id}
-            style={{
-              background: "#1a1a1a",
-              padding: "22px",
-              borderRadius: "12px",
-              border: "1px solid #262626",
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-            }}
-          >
-            <div>
-              <h2 style={{ margin: 0, fontSize: "22px" }}>{acc.name}</h2>
-              <p style={{ margin: "6px 0", opacity: 0.7 }}>
-                {acc.category} • {acc.provider} • {acc.account_type}
-              </p>
-            </div>
-
+        {accounts
+          ?.filter((acc) => acc.id) // 🔥 IGNORA CONTAS SEM ID
+          .map((acc) => (
             <div
+              key={acc.id}
               style={{
-                background: "#f7931a",
-                color: "#000",
-                padding: "8px 14px",
-                borderRadius: "8px",
-                fontWeight: "600",
-                fontSize: "14px",
+                background: "#1a1a1a",
+                padding: "22px",
+                borderRadius: "12px",
+                border: "1px solid #262626",
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
               }}
             >
-              {acc.currency_base}
-            </div>
-          </div>
-        ))}
+              <div>
+                <a
+                  href={`/accounts/${acc.id}`}
+                  style={{
+                    margin: 0,
+                    fontSize: "22px",
+                    color: "#f7931a",
+                    textDecoration: "none",
+                    fontWeight: "600",
+                  }}
+                >
+                  {acc.name}
+                </a>
 
-        {accounts?.length === 0 && (
-          <p style={{ opacity: 0.6 }}>No accounts yet.</p>
-        )}
+                <p style={{ margin: "6px 0", opacity: 0.7 }}>
+                  {acc.category} • {acc.provider} • {acc.account_type}
+                </p>
+              </div>
+
+              <DeleteAccountButton id={acc.id} />
+            </div>
+          ))}
       </div>
     </div>
   );
