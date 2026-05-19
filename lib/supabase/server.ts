@@ -8,18 +8,19 @@ export function supabaseServer() {
     {
       cookies: {
         async get(name: string) {
-          const store = await cookies();
+          const store = await cookies(); // 🔥 Next.js 16 → cookies() é async
           return store.get(name)?.value;
         },
         async set(name: string, value: string, options: any) {
           const store = await cookies();
-          store.set({ name, value, ...options });
+          store.set(name, value, options);
         },
         async remove(name: string, options: any) {
           const store = await cookies();
-          store.set({ name, value: "", ...options });
+          store.set(name, "", { ...options, maxAge: 0 });
         },
       },
     }
   );
 }
+                                                                    

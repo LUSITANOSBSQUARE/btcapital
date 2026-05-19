@@ -4,7 +4,6 @@ import DeleteAccountButton from "./_components/DeleteAccountButton";
 export default async function AccountsPage() {
   const supabase = supabaseServer();
 
-  // 🔥 SELECT CORRIGIDO — garante que o ID vem SEMPRE
   const { data: accounts, error } = await supabase
     .from("accounts")
     .select("id, name, category, provider, account_type, currency_base, created_at")
@@ -59,7 +58,7 @@ export default async function AccountsPage() {
 
       <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
         {accounts
-          ?.filter((acc) => acc.id) // 🔥 IGNORA CONTAS SEM ID
+          ?.filter((acc) => acc.id)
           .map((acc) => (
             <div
               key={acc.id}
